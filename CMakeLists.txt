@@ -19,6 +19,7 @@ add_executable(sowitz
     src/fft.cpp
     src/port_audio_handler.cpp
     src/sowitz.cpp
+    src/sdl_operators.cpp
 )
 
 target_link_libraries(sowitz PRIVATE

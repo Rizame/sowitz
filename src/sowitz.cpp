@@ -1,5 +1,6 @@
 #include "sowitz.h"
 #include "sdl_operators.h"
+#include <SDL3/SDL_render.h>
 
 sowitz::sowitz(int WIDTH, int HEIGHT) {
   if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -8,7 +9,8 @@ sowitz::sowitz(int WIDTH, int HEIGHT) {
   }
 
   window = SDL_CreateWindow("sowitz", WIDTH, HEIGHT, SDL_WINDOW_RESIZABLE);
-
+  width = WIDTH;
+  height = HEIGHT;
   if (!window) {
     std::cerr << SDL_GetError() << '\n';
     SDL_Quit();
@@ -22,6 +24,15 @@ sowitz::sowitz(int WIDTH, int HEIGHT) {
     SDL_DestroyWindow(window);
     SDL_Quit();
     exit(EXIT_FAILURE);
+  }
+
+  bool vsync = SDL_SetRenderVSync(renderer, 1);
+  if (!vsync)
+    std::cerr << "[ERROR]: couldn't enable the vsync" << std::endl;
+
+  // first default zeroed point intialization:
+  for (int i = 0; i < DISPLAY_BINS; i++) {
+    mid_points[i] = {0.f, (float)HEIGHT - 5};
   }
 }
 
@@ -51,9 +62,14 @@ float sowitz::lerp(float v0, float v1, float t, float coeff) {
   return v0 - v0 * t + v1 * t;
 }
 
-std::vector<SDL_FPoint> sowitz::catmull_rom(SDL_FPoint p1, SDL_FPoint p2, SDL_FPoint p3,
-                               SDL_FPoint p4) {
-    std::vector<SDL_FPoint> points;
+float sowitz::get_bin_x_position(int i) {
+  return width * (log(BIN_FREQUENCY * i) - log(BIN_FREQUENCY)) /
+         (log(BIN_FREQUENCY * DISPLAY_BINS) - log(BIN_FREQUENCY));
+}
+
+std::vector<SDL_FPoint> sowitz::catmull_rom(SDL_FPoint p1, SDL_FPoint p2,
+                                            SDL_FPoint p3, SDL_FPoint p4) {
+  std::vector<SDL_FPoint> points;
   for (float t = 0.0f; t <= 1.0f; t += 0.01f) {
 
     SDL_FPoint np1 = {

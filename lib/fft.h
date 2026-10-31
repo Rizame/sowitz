@@ -5,7 +5,8 @@
 constexpr int SAMPLE_RATE = 48000;
 constexpr int BUFFER_SIZE = 512;
 constexpr int BIN_FREQUENCY = SAMPLE_RATE / BUFFER_SIZE;
-constexpr int NUM_BINS = BUFFER_SIZE / 2 + 1;
+constexpr int TOTAL_BINS = BUFFER_SIZE / 2 + 1;
+constexpr int DISPLAY_BINS = BUFFER_SIZE / 4 + 1;
 constexpr int DB_MAX = 0;
 constexpr int DB_MIN = -80;
 
@@ -16,7 +17,7 @@ public:
 
   void apply_fft_on_window(const float *window);
   std::atomic<float *> magnitude_values;
-  float* prev_mag_values;
+  float *prev_mag_values;
 
 private:
   float *input_;

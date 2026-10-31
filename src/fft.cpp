@@ -2,16 +2,16 @@
 #include <algorithm>
 
 fft::fft() {
-  raw_magnitude_values = new float[NUM_BINS]();
-  prev_mag_values = new float[NUM_BINS]();
-  magnitude_values.store(new float[NUM_BINS]());
+  raw_magnitude_values = new float[TOTAL_BINS]();
+  prev_mag_values = new float[TOTAL_BINS]();
+  magnitude_values.store(new float[TOTAL_BINS]());
   // initializing magnitude values is important.
   // can't init to nullptr since on second call of audio processor it will write
   // into nullptr.
   // so we store the pointer of a newly allocated array into
   // atomic so we could then swap them around
   input_ = fftwf_alloc_real(BUFFER_SIZE);
-  out_ = fftwf_alloc_complex(NUM_BINS);
+  out_ = fftwf_alloc_complex(TOTAL_BINS);
   plan_ = fftwf_plan_dft_r2c_1d(BUFFER_SIZE, input_, out_, FFTW_ESTIMATE);
 }
 
@@ -37,7 +37,7 @@ void fft::apply_fft_on_window(const float *samples) {
   fftwf_execute(plan_);
 
   // std::vector<float> bins_magnitude;
-  for (int k = 0; k < NUM_BINS; k++) {
+  for (int k = 0; k < TOTAL_BINS; k++) {
     float real = out_[k][0];
     float imag = out_[k][1];
     float magnitude = std::sqrt(real * real + imag * imag);
